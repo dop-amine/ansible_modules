@@ -3,18 +3,18 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.define "winmo" do |winmo|
-    winmo.vm.box = "geerlingguy/ubuntu1804"
-    winmo.ssh.insert_key = false
-    winmo.vm.hostname = 'winmo'
-    winmo.vm.network :private_network, ip: "192.168.0.42"
-    winmo.vm.synced_folder "~/apps", "/var/www/vhosts"
-    winmo.vm.synced_folder "~/.ssh", "/home/vagrant/.ssh"
-    winmo.vm.synced_folder "~/dev_cert", "/etc/apache2/ssl"
-    winmo.vm.synced_folder "~/.aws", "/home/vagrant/.aws"
+  config.vm.define "app" do |app|
+    app.vm.box = "geerlingguy/ubuntu1804"
+    app.ssh.insert_key = false
+    app.vm.hostname = 'app'
+    app.vm.network :private_network, ip: "192.168.0.42"
+    # app.vm.synced_folder "~/apps", "/var/www/vhosts"
+    # app.vm.synced_folder "~/.ssh", "/home/vagrant/.ssh"
+    # app.vm.synced_folder "~/dev_cert", "/etc/apache2/ssl"
+    # app.vm.synced_folder "~/.aws", "/home/vagrant/.aws"
 
-    winmo.vm.provider :virtualbox do |v|
-      v.name = "winmo"
+    app.vm.provider :virtualbox do |v|
+      v.name = "app"
       v.memory = 2048
       v.cpus = 2
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
