@@ -1,0 +1,106 @@
+---
+# Vars: username, pyenv_version
+
+- name: Install snake dependencies
+  apt:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - unison
+    - curl
+    - less
+    - vim
+    - git
+    - libmysqlclient-dev
+    - bash-completion
+    - python3
+    - build-essential
+    - zlibc
+    - zlib1g-dev
+    - bzip2
+    - lbzip2
+    - libreadline-dev
+    - lbzip2
+    - libssl-dev
+    - libbz2-dev
+    - libreadline-dev
+    - python-dev
+    - python3-dev
+    - python3-venv
+
+- name: Add pyenv path and virtualenv authentication to .bashrc
+  lineinfile:
+    path: /home/{{ username }}/.bashrc
+    state: present
+    block: |
+      export PATH="/home/vagrant/.pyenv/bin:$PATH"
+      eval "$(pyenv init -)"
+      eval "$(pyenv virtualenv-init -)"
+
+      _virtualenv_auto_activate() {
+        if [ -f ".venv" ]; then
+          _VENV_NAME=$(head -n 1 .venv)
+          _ACTIVATION_SCRIPT=~/.venv/$_VENV_NAME/bin/activate
+          if [ ! -f $_ACTIVATION_SCRIPT ]; then
+            echo "Creating venv $_VENV_NAME"
+            python3 -m venv ~/.venv/$_VENV_NAME
+          fi
+          source "$_ACTIVATION_SCRIPT"
+        fi
+      }
+      PROMPT_COMMAND="_virtualenv_auto_activate;"
+
+- name: Add pyenv to path
+  shell: export PATH="/home/vagrant/.pyenv/bin:$PATH"
+
+- name: Check if pyenv installer is downloaded
+  stat:
+    path: /home/{{ username }}/.pyenv
+  register: stat_result_pyenvinstall
+
+- name: Download pyenv installer
+  get_url:
+    url: https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer
+    dest: /tmp/pyenv-installer.sh
+    mode: 0755
+  when: stat_result_pyenvinstall.stat.exists == False
+
+- name: Check if pyenv is installed
+  stat:
+    path: /home/{{ username }}/.pyenv
+  register: stat_result_pyenv
+
+- name: Install pyenv
+  shell: /tmp/pyenv-installer.sh
+  become_user: "{{ username }}"
+  when: stat_result_pyenv.stat.exists == False
+
+- name: Install pyenv version
+  command: creates=/home/{{ username }}/.pyenv/versions/{{ pyenv_version }} /home/{{ username }}/.pyenv/bin/pyenv install {{ pyenv_version }}
+  become_user: "{{ username }}"
+
+- name: Set global pyenv version
+  command: creates=/home/{{ username }}/.pyenv/versions/{{ pyenv_version }} /home/{{ username }}/.pyenv/bin/pyenv global {{ pyenv_version }}
+  become_user: "{{ username }}"
+
+- name: Install wheel
+  pip:
+    name: virtualenv
+    state: present
+
+- name: Uninstall spacy, thinc and cymem
+  pip:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - spacy
+    - thinc
+    - cymem
+
+- name: Install spacy
+  pip:
+    name: spacy==2.0.12
+    state: present
+
+#- name: Add to crontab
+# /home/vagrant/.venv/3.6.1@snake/bin/python /var/www/vhosts/snake/account_renewal_predictor/db_predictor.py > /var/www/vhosts/snake/account_renewal_predictor/db_predictor.log 2>&1

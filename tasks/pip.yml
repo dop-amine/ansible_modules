@@ -1,0 +1,10 @@
+---
+- name: Install python setuptools
+  apt:
+    name: python-setuptools
+    state: present
+
+- name: Install python-pip
+  apt:
+    name: python-pip
+    state: latest

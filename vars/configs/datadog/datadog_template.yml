@@ -1,0 +1,137 @@
+---
+# datadog_config:
+#   tags:
+#     - "env:prod"
+#   process_config:
+#     enabled: "true"
+#   apm_config:
+#     enabled: true
+#   logs_enabled: true
+# datadog_checks:
+#   journald:
+#       - type: journald
+#   process:
+#     init_config:
+#     instances:
+#       - name: ssh
+#         search_string: ['ssh', 'sshd' ]
+#   http_check:
+#     init_config:
+#     instances:
+#       - name: my_service
+#         url: https://{{ host_name }}
+#   apache:
+#     init_config:
+#     instances:
+#       - apache_status_url: http://localhost/server-status?auto
+#     logs:
+#       - type: file
+#         path: /var/log/apache2/access.log
+#         source: apache
+#         sourcecategory: http_web_access
+#         service: myservice
+#       - type: file
+#         path: /var/log/apache2/error.log
+#         source: apache
+#         sourcecategory: http_web_access
+#         service: myservice
+#   ruby:
+#     logs:
+#       - type: file
+#         path: /var/www/vhosts/{{ app_name }}/current/log/production.log
+#         service: myapplication
+#         source: ruby
+#         sourcecategory: sourcecode
+#       - type: file
+#         path: /var/www/vhosts/{{ app_name }}/current/log/cas.log
+#         service: myapplication
+#         source: ruby
+#         sourcecategory: sourcecode
+#   redisdb:
+#     init_config:
+#     instances:
+#       - host: localhost
+#         port: 6379
+#   rabbitmq:
+#     init_config:
+#     instances:
+#       - rabbitmq_api_url: http://localhost:15672/api/
+#         username: datadog
+#         password: "{{ rabbitmq_datadog_password }}"
+#         tag_families: monitoring
+#   solr:
+#     instances:
+#       - host: localhost
+#         port: 9999
+#     init_config:
+#       conf:
+#         - include:
+#           type: searcher
+#           attribute:
+#             maxDoc:
+#               alias: solr.searcher.maxdoc
+#               metric_type: gauge
+#             numDocs:
+#               alias: solr.searcher.numdocs
+#               metric_type: gauge
+#             warmupTime:
+#               alias: solr.searcher.warmup
+#               metric_type: gauge
+#         - include:
+#           id: org.apache.solr.search.FastLRUCache
+#           attribute:
+#             cumulative_lookups:
+#               alias: solr.cache.lookups
+#               metric_type: counter
+#             cumulative_hits:
+#               alias: solr.cache.hits
+#               metric_type: counter
+#             cumulative_inserts:
+#               alias: solr.cache.inserts
+#               metric_type: counter
+#             cumulative_evictions:
+#               alias: solr.cache.evictions
+#               metric_type: counter
+#         - include:
+#           id: org.apache.solr.search.LRUCache
+#           attribute:
+#             cumulative_lookups:
+#               alias: solr.cache.lookups
+#               metric_type: counter
+#             cumulative_hits:
+#               alias: solr.cache.hits
+#               metric_type: counter
+#             cumulative_inserts:
+#               alias: solr.cache.inserts
+#               metric_type: counter
+#             cumulative_evictions:
+#               alias: solr.cache.evictions
+#               metric_type: counter
+#         - include:
+#           id: org.apache.solr.handler.component.SearchHandler
+#           attribute:
+#             errors:
+#               alias: solr.search_handler.errors
+#               metric_type: counter
+#             requests:
+#               alias: solr.search_handler.requests
+#               metric_type: counter
+#             timeouts:
+#               alias: solr.search_handler.timeouts
+#               metric_type: counter
+#             totalTime:
+#               alias: solr.search_handler.time
+#               metric_type: counter
+#             avgTimePerRequest:
+#               alias: solr.search_handler.avg_time_per_req
+#               metric_type: gauge
+#             avgRequestsPerSecond:
+#               alias: solr.search_handler.avg_requests_per_sec
+#               metric_type: gauge
+#
+# system_probe_config:
+#   enabled: true
+#
+# datadog_sysprobe_config: |
+#   system_probe_config:
+#     enabled: true

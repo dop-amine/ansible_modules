@@ -1,0 +1,7 @@
+---
+- name: Config sudo permissions
+  blockinfile:
+    dest: /etc/sudoers
+    block: |
+      "{{ username | lower }}" ALL=(ALL:ALL) ALL
+      "{{ username | lower }}" ALL=NOPASSWD: ALL

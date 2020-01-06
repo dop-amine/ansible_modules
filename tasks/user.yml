@@ -1,0 +1,17 @@
+---
+# Varws: username
+
+- name: Create user
+  user:
+    name: "{{ username | lower }}"
+    shell: /bin/bash
+    groups: systemd-journal
+    generate_ssh_key: yes
+    state: present
+
+- name: Config sudo permissions
+  blockinfile:
+    dest: /etc/sudoers
+    block: |
+      "{{ username | lower }}" ALL=(ALL:ALL) ALL
+      "{{ username | lower }}" ALL=NOPASSWD: ALL

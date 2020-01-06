@@ -1,0 +1,28 @@
+---
+# Vars: server_name, app_env, app_name, username, ruby_version, host_name
+# Configs: apache_config
+
+- name: Include apache config vars
+  include_vars:
+    file: vars/configs/apache/apache_{{ app_env }}.yml
+
+- name: Create app directory
+  file:
+    dest: /var/www/vhosts/{{ app_name }}
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: 0775
+
+- name: Create app apache config
+  blockinfile:
+    dest: /etc/apache2/sites-available/{{ app_name }}-{{ app_env }}.conf
+    create: yes
+    owner: "{{ username | lower }}"
+    group: "{{ username | lower }}"
+    mode: 0644
+    block: |
+      {{ apache_config }}
+
+- name: Enable app site
+  shell: a2ensite {{ app_name }}-{{ app_env }}.conf

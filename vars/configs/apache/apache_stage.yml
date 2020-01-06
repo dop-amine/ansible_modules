@@ -1,0 +1,36 @@
+apache_config: |
+  <IfModule mod_passenger.c>
+    PassengerMaxPoolSize 10
+    PassengerPoolIdleTime 5
+    PassengerMinInstances 10
+  </IfModule>
+
+  <VirtualHost *:80>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+  </VirtualHost>
+
+  <VirtualHost *:443>
+    ServerName {{ host_name }}
+
+    Include common/{{ app_name }}.{{ app_env }}.ssl
+    Include common/apache.maintenance
+
+    RewriteEngine On
+
+    <IfModule mod_passenger.c>
+      PassengerRuby /home/{{ username }}/.rvm/gems/ruby-{{ ruby_version }}@{{ app_name }}/wrappers/ruby
+      PassengerMaxRequestQueueSize 1000
+      PassengerHighPerformance on
+      PassengerMaxRequests 1000
+    </IfModule>
+
+    RailsEnv development
+
+    DocumentRoot /var/www/vhosts/{{ app_name }}/current/public
+    <Directory /var/www/vhosts/{{ app_name }}/current/public>
+      AllowOverride all
+      Options -MultiViews
+    </Directory>
+  </VirtualHost>
