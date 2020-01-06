@@ -1,0 +1,5 @@
+---
+- name: Install hugo
+  service:
+    name: hugo
+    state: present
