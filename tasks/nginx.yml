@@ -1,0 +1,33 @@
+---
+# Vars: app_name
+
+- name: Include nginx config vars
+  include_vars:
+    file: vars/nginx_config.yml
+
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Create nginx config file
+  blockinfile:
+    dest: /etc/nginx/sites-available/{{ app_name }}
+    create: yes
+    mode: 0644
+    block: |
+      {{ nginx_config }}
+
+- name: Remove default nginx site
+  file:
+    dest: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Check if symlink exists
+  stat:
+    path: /etc/nginx/sites-available/{{ app_name }}
+  register: stat_result_symlink
+
+- name: Enable nginx site
+  shell: ln -s /etc/nginx/sites-available/{{ app_name }} /etc/nginx/sites-enabled/{{ app_name }}
+  when: stat_result_symlink.stat.exists == False
