@@ -1,0 +1,23 @@
+---
+- name: Update cache
+  apt:
+    update_cache: yes
+
+- name: Install dependencies
+  apt:
+    name: software-properties-common
+    state: present
+
+- name: Add ansbile apt repo
+  apt_repository:
+    repo: ppa:ansible/ansible
+    state: present
+
+- name: Update cache
+  apt:
+    update_cache: yes
+
+- name: Install ansible
+  apt:
+    name: ansible
+    state: present

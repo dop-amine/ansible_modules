@@ -1,7 +1,4 @@
-- name: Install main packages
+- name: Install youtube-dl and ffmpeg
   apt:
-    name: '{{ item }}'
+    name: ['youtube-dl', 'ffmpeg']
     state: present
-  with_items:
-    - youtube-dl
-    - ffmpeg
