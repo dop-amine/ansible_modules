@@ -20,12 +20,17 @@
   pip:
     name: awscli
 
-- name: Add path to .profile
-  blockinfile:
+- name: Add bin path .profile
+  lineinfile:
     dest: /home/{{ username | lower }}/.profile
-    block: |
-      export PATH=~/.local/bin:$PATH
-      export PATH=~/.local/bin/aws:$PATH
+    line: export PATH=~/.local/bin:$PATH
+    state: present
+
+- name: Add aws path to .profile
+  lineinfile:
+    dest: /home/{{ username | lower }}/.profile
+    line: export PATH=~/.local/bin/aws:$PATH
+    state: present
 
 - name: Create .aws folder
   file:
