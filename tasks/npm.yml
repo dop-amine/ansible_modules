@@ -1,0 +1,17 @@
+---
+- name: Update cache
+  apt:
+    update_cache: yes
+
+- name: Add node apt-key
+  shell: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+
+- name: Install nodejs
+  apt:
+    name: nodejs
+    state: present
+
+- name: Install npm
+  apt:
+    name: npm
+    state: present

@@ -1,14 +1,10 @@
 ---
-# Vars: username, app_env, server_name
-# Configs: apache_mod_status, apache_mpm_config, apache_maintenance, apache_maintenance_disabled, gd_bundle, ssl_crt, ssl_key
-
 - name: Include apache config vars
   include_vars:
     file: "{{ item }}"
   with_items:
-    - vars/configs/apache/apache_{{ app_env }}].yml
+    - vars/configs/apache/apache.yml
     - vars/configs/apache/apache_maintenance.yml
-    - vars/certs/ssl_certs_{{ app_env }}.yml
 
 - name: Remove default apache2 package
   apt:
@@ -71,13 +67,8 @@
     dest: /var/www/html
     state: absent
 
-- name: Create vhosts directory
-  file:
-    dest: /var/www/vhosts
-    state: directory
-    owner: "{{ username | lower }}"
-    group: "{{ username | lower }}"
-    mode: 0755
+- name: Disable default site
+  shell: a2dissite 000-default
 
 - name: Enable rewrite module
   apache2_module:
@@ -112,138 +103,10 @@
     name: ssl
     state: present
 
-- name: Delete default mod_status
-  file:
-    dest: /etc/apache2/mods-available/status.conf
-    state: absent
-  tags: datadog
-
-- name: Edit mod_status
-  blockinfile:
-    dest: /etc/apache2/mods-available/status.conf
-    create: yes
-    owner: root
-    group: root
-    mode: 0777
-    block: |
-      {{ apache_mod_status }}
-  tags: datadog
-
-- name: Enable mod_status
-  apache2_module:
-    name: status
-    state: present
-  tags: datadog
-  ignore_errors: yes
-
 - name: Reload apache
   service:
     name: apache2
     state: reloaded
-
-- name: Edit apache mpm config
-  replace:
-    path: /etc/apache2/mods-enabled/mpm_event.conf
-    regexp: '(<IfModule mpm_event_module>[\s\S]*)</IfModule>'
-    replace: |
-      {{ apache_mpm_config }}
-
-- name: Create apache common config file
-  blockinfile:
-    dest: /etc/apache2/conf-available/passenger-common.conf
-    create: yes
-    owner: root
-    group: root
-    mode: 0644
-    block: |
-      <IfModule mod_passenger.c>
-        PassengerMaxPoolSize 70
-        PassengerPoolIdleTime 0
-        PassengerMinInstances 70
-      </IfModule>
-
-- name: Enable passenger-common config
-  shell: a2enconf passenger-common
-
-- name: Create common and ssl directories
-  file:
-    dest: "{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-  with_items:
-    - /etc/apache2/ssl
-    - /etc/apache2/common
-
-- name: Create apache maintenance file
-  blockinfile:
-    dest: /etc/apache2/common/apache.maintenance
-    create: yes
-    mode: 0644
-    block: |
-      {{ apache_maintenance }}
-
-- name: Create apache disabled maintenance file
-  blockinfile:
-    dest: /etc/apache2/common/maintenance.html.disabled
-    create: yes
-    mode: 0644
-    block: |
-      {{ apache_maintenance_disabled }}
-
-- name: Create common ssl file
-  blockinfile:
-    dest: /etc/apache2/common/{{ app_name }}.{{ app_env }}.ssl
-    create: yes
-    mode: 0644
-    block: |
-      SSLEngine on
-      SSLCertificateFile   /etc/apache2/ssl/{{ app_env }}.crt
-      SSLCertificateKeyFile /etc/apache2/ssl/{{ app_env }}.key
-      SSLCertificateChainFile /etc/apache2/ssl/gd_bundle_{{ app_env }}.crt
-
-- name: Create gd_bundle ssl key
-  blockinfile:
-    dest: /etc/apache2/ssl/gd_bundle_{{ app_env }}.crt
-    create: yes
-    mode: 0644
-    block: |
-      {{ gd_bundle }}
-
-- name: Create ssl crt
-  blockinfile:
-    dest: /etc/apache2/ssl/{{ app_env }}.crt
-    create: yes
-    mode: 0644
-    block: |
-      {{ ssl_crt }}
-
-- name: Create ssl key
-  blockinfile:
-    dest: /etc/apache2/ssl/{{ app_env }}.key
-    create: yes
-    mode: 0644
-    block: |
-      {{ ssl_key }}
-
-- name: Enable rewrite module
-  apache2_module:
-    name: rewrite
-    state: present
-
-- name: Enable headers module
-  apache2_module:
-    name: headers
-    state: present
-
-- name: Enable expires module
-  apache2_module:
-    name: expires
-    state: present
-
-- name: Disable default site
-  shell: a2dissite 000-default
 
 - name: Change permissions of apache log dir
   file:
