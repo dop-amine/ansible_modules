@@ -1,4 +1,9 @@
 ---
+- name: Remove cmdtest
+  apt:
+    name: cmdtest
+    state: absent
+
 - name: Add yarn apt-key
   shell: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 
@@ -9,3 +14,4 @@
   apt:
     name: yarn
     state: present
+   install_recommends: no
